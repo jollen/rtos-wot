@@ -14,7 +14,6 @@ The development is still in progress.
 Part of ARM mbed C++ class libraries is porting to rtos-wot project. This enables ESP8266 developers to write FreeRTOS appications in C++ Programming Model.
 
 * [examples/mbed_lm35](https://github.com/wot-sdk/rtos-wot/tree/master/examples/mbed_lm35) - [mbed APIs](https://github.com/mbedmicro/mbed/tree/master/libraries/mbed/api) is a set of reusable hardware components. This example reuses *AnalogIn* to read the LM35 sensor data.
-* [examples/mbed_air_quality](https://github.com/wot-sdk/rtos-wot/tree/master/examples/mbed_air_quality) - Reuse *AnalogIn* of mbed component to read the Air Quality sesnor.
 * [examples/mbed_gpio](https://github.com/wot-sdk/rtos-wot/tree/master/examples/mbed_gpio) - Reuse *DigitalOut* of mbed component to control GPIOs.
 
 To use the *AnalogIn* component, include its header file:
@@ -85,13 +84,17 @@ transaction->packet_len = coap_serialize_message(request, transaction->packet);
 
 ### 7. Final step
 
-After serializing the CoAP message, the final CoAP packet is sotred at *transaction->packet*. Assume that the server was connected via local socket _s_.
+After serializing the CoAP message, the final CoAP packet is sotred at *transaction->packet*. The final step is to call lwip APIs to create a UDP socket and send out the serialized message. For example, assume that the server was connected via local socket _s_.
 
 ```
 write(s, transaction->packet, transaction->packet_len);
 ```
 
 CoAP is basis of web of things framework. For push pattern of WoT, the TD (thing description) can be serialized in CoAP binary format.
+
+### Put together
+
+Please refer to [coap_send](https://github.com/wot-sdk/rtos-wot/tree/master/examples/coap_send) for how to put all things together.
 
 ## History
 
@@ -100,6 +103,7 @@ CoAP is basis of web of things framework. For push pattern of WoT, the TD (thing
 
 * v0.2.0: 2015-01-08
  * Add open source component: *er-coap-13* library from Contiki operating system project
+ * Add example: coap_send
  
 ## esp-open-rtos
 
