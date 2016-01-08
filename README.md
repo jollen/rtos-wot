@@ -36,14 +36,14 @@ You can program ESP8266 FreeRTOS applications in mbed coding style.
 
 *libcoap* of Contiki was fully ported to rtos-wot project. The following steps explains how to construct a CoAP message and transmit it to Internet with lwip.
 
-1. Include necessary header files.
+### 1. Include necessary header files.
 
 ```
 #include "er-coap-13.h"
 #include "er-coap-13-transactions.h"
 ```
 
-2. Prepare and initialize a CoAP packet.
+### 2. Prepare and initialize a CoAP packet.
 
 ```
 coap_packet_t request[1];
@@ -52,7 +52,7 @@ coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
 
 In the example, the packet is initialized to *COAP_TYPE_CON* type and *POST* method.
 
-3. Fill CoAP headers.
+### 3. Fill CoAP headers.
 
 ```
 // 初始化 CoAP headers，填寫 CoAP header 的 Uri Path 與 Uri Host
@@ -62,7 +62,7 @@ coap_set_header_uri_host(request, 'wot.city');
 
 In the example, the packet headers is filled with server URI path and host.
 
-4. Set the payload.
+### 4. Set the payload.
 
 ```
 const char *payload = "{}";
@@ -71,20 +71,20 @@ coap_set_payload(request, (uint8_t *)payload, strlen(payload));
 
 The payload is the message context. In the example, the payload is an empty JSON object.
 
-5. Get message ID
+### 5. Get message ID
 
 ```
 request->mid = coap_get_mid();
 ```
 
-6. Serialize CoAP message
+### 6. Serialize CoAP message
 
 ```
 coap_transaction_t *transaction = coap_new_transaction(request->mid, &ipaddr, uri->port);
 transaction->packet_len = coap_serialize_message(request, transaction->packet);
 ```
 
-7. Final step
+### 7. Final step
 
 After serializing the CoAP message, the final CoAP packet is sotred at *transaction->packet*.
 
