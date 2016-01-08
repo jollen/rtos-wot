@@ -13,9 +13,9 @@ The development is still in progress.
 
 Part of ARM mbed C++ class libraries is porting to rtos-wot project. This enables ESP8266 developers to write FreeRTOS appications in C++ Programming Model.
 
-* examples/mbed_lm35 - [mbed APIs](https://github.com/mbedmicro/mbed/tree/master/libraries/mbed/api) is a set of reusable hardware components. This example reuses *AnalogIn* to read the LM35 sensor data.
-* examples/mbed_air_quality - Reuse *AnalogIn* of mbed component to read the Air Quality sesnor.
-* examples/mbed - Reuse *DigitalOut* of mbed component to control GPIOs.
+* [examples/mbed_lm35](https://github.com/wot-sdk/rtos-wot/tree/master/examples/mbed_lm35) - [mbed APIs](https://github.com/mbedmicro/mbed/tree/master/libraries/mbed/api) is a set of reusable hardware components. This example reuses *AnalogIn* to read the LM35 sensor data.
+* [examples/mbed_air_quality](https://github.com/wot-sdk/rtos-wot/tree/master/examples/mbed_air_quality) - Reuse *AnalogIn* of mbed component to read the Air Quality sesnor.
+* [examples/mbed_gpio](https://github.com/wot-sdk/rtos-wot/tree/master/examples/mbed_gpio) - Reuse *DigitalOut* of mbed component to control GPIOs.
 
 To use the *AnalogIn* component, include its header file:
 
