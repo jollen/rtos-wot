@@ -55,12 +55,11 @@ In the example, the packet is initialized to *COAP_TYPE_CON* type and *POST* met
 ### 3. Fill CoAP headers.
 
 ```
-// 初始化 CoAP headers，填寫 CoAP header 的 Uri Path 與 Uri Host
 coap_set_header_uri_path(request, 'object/123456/send');
 coap_set_header_uri_host(request, 'wot.city');
 ```
 
-In the example, the packet headers is filled with server URI path and host.
+In the example, the packet headers was filled with both server URI path and server host.
 
 ### 4. Set the payload.
 
