@@ -166,13 +166,14 @@ int coap_split_uri(unsigned char *str_var, size_t len, coap_uri_t *uri) {
   return len ? -1 : 0;
   
   error:
+  printf("URI ERROR: %d\n", res);
   return res;
 }
 
 #define URI_DATA(uriobj) ((unsigned char *)(uriobj) + sizeof(coap_uri_t))
 
 coap_uri_t *
-coap_new_uri(const char *uri, unsigned int length) {
+coap_new_uri(unsigned char *uri, unsigned int length) {
   unsigned char *result;
 
   result = (unsigned char *)malloc(length + 1 + sizeof(coap_uri_t));

@@ -13,7 +13,7 @@
 
 typedef struct {
   size_t length;		/* length of string */
-  const unsigned char *s;		/* string data */
+  unsigned char *s;		/* string data */
 } str;
 
 #define COAP_SET_STR(st,l,v) { (st)->length = (l), (st)->s = (v); }

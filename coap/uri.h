@@ -35,7 +35,7 @@ typedef struct {
  * @return New URI object or NULL on error.
  */
 coap_uri_t *
-coap_new_uri(const char *uri, unsigned int length);
+coap_new_uri(unsigned char *uri, unsigned int length);
 
 /**
  * @defgroup uri_parse URI Parsing Functions
