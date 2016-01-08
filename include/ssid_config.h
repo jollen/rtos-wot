@@ -25,7 +25,7 @@
 #ifndef __SSID_CONFIG_H__
 #define __SSID_CONFIG_H__
 
-#define WIFI_SSID "JY"
+#define WIFI_SSID "JY House"
 #define WIFI_PASS "1234567654321"
 
 #endif // __SSID_CONFIG_H__
