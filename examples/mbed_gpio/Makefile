@@ -1,3 +1,3 @@
-PROGRAM=adc_lm35
+PROGRAM=gpio
 include ../../common.mk
 LIBS+=m
