@@ -85,7 +85,7 @@ transaction->packet_len = coap_serialize_message(request, transaction->packet);
 
 ### 7. Final step
 
-After serializing the CoAP message, the final CoAP packet is sotred at *transaction->packet*.
+After serializing the CoAP message, the final CoAP packet is sotred at *transaction->packet*. Assume that the server was connected via local socket _s_.
 
 ```
 write(s, transaction->packet, transaction->packet_len);
