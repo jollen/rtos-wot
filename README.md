@@ -54,7 +54,7 @@ In the example, the packet is initialized to *COAP_TYPE_CON* type and *POST* met
 ### 3. Fill CoAP headers.
 
 ```
-coap_set_header_uri_path(request, 'object/123456/send');
+coap_set_header_uri_path(request, '/object/123456/send');
 coap_set_header_uri_host(request, 'wot.city');
 ```
 
