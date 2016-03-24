@@ -1,5 +1,7 @@
 # rtos-wot
 
+[![Join the chat at https://gitter.im/jollen/rtos-wot](https://badges.gitter.im/jollen/rtos-wot.svg)](https://gitter.im/jollen/rtos-wot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [rtos-wot](https://github.com/wot-sdk/rtos-wot) 是一個用於學習 FreeRTOS + IoT 的 FreeRTOS 特別版本（distribution），說明如下：
 
 * 必須使用 Open Source 的 [FreeRTOS](http://www.freertos.org) 原始碼
