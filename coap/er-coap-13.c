@@ -882,69 +882,34 @@ coap_set_header_uri_host(void *packet, const char *host)
   return coap_pkt->uri_host_len;
 }
 /*-----------------------------------------------------------------------------------*/
-int  /*I*/
+int
 coap_get_header_uri_path(void *packet, const char **path)
 {
   coap_packet_t *const coap_pkt = (coap_packet_t *) packet;
 
-  if (!IS_OPTION(coap_pkt, COAP_OPTION_URI_PATH)) return 0;
+  if (!IS_OPTION(coap_pkt, COAP_OPTION_URI_PATH)) {
+    return 0;
+  }
 
-  *path = NULL; //coap_pkt->uri_path;
-  return 0; //coap_pkt->uri_path_len;
+  *path = coap_pkt->uri_path;
+  return coap_pkt->uri_path_len;
 }
 
-int  /*I*/
+int
 coap_set_header_uri_path(void *packet, const char *path)
 {
   coap_packet_t *coap_pkt = (coap_packet_t *) packet;
-  int length = 0;
-#ifdef OMA_LWM2M
-  free_multi_option(coap_pkt->uri_path);
-  coap_pkt->uri_path = NULL;
-#endif
-  if (path[0]=='/') ++path;
 
-  do
-  {
-      int i = 0;
+  while(path[0] == '/')
+    ++path;
 
-      while (path[i] != 0 && path[i] != '/') i++;
-#ifdef OMA_LWM2M
-      coap_add_multi_option(&(coap_pkt->uri_path), (uint8_t *)path, i, 0);
-#endif
-      if (path[i] == '/') i++;
-      path += i;
-      length += i;
-  } while (path[0] != 0);
+  coap_pkt->uri_path = path;
+  coap_pkt->uri_path_len = strlen(path);
 
   SET_OPTION(coap_pkt, COAP_OPTION_URI_PATH);
-  return length;
+  return coap_pkt->uri_path_len;
 }
 
-int  /*I*/
-coap_set_header_uri_path_segment(void *packet, const char *segment)
-{
-  coap_packet_t *coap_pkt = (coap_packet_t *) packet;
-  int length;
-
-  if (segment == NULL || segment[0] == 0)
-  {
-#ifdef OMA_LWM2M
-      coap_add_multi_option(&(coap_pkt->uri_path), NULL, 0, 1);
-#endif
-      length = 0;
-  }
-  else
-  {
-      length = strlen(segment);
-#ifdef OMA_LWM2M
-      coap_add_multi_option(&(coap_pkt->uri_path), (uint8_t *)segment, length, 0);
-#endif
-  }
-
-  SET_OPTION(coap_pkt, COAP_OPTION_URI_PATH);
-  return length;
-}
 /*-----------------------------------------------------------------------------------*/
 int  /*I*/
 coap_get_header_uri_query(void *packet, const char **query)
