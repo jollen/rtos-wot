@@ -266,13 +266,6 @@ typedef enum {
     APPLICATION_X_OBIX_BINARY = 51
 } coap_content_type_t;
 
-typedef struct _multi_option_t {
-  struct _multi_option_t *next;
-  uint8_t is_static;
-  uint8_t len;
-  uint8_t *data;
-} multi_option_t;
-
 /* Parsed message struct */
 typedef struct {
   uint8_t *buffer; /* pointer to CoAP header / incoming packet buffer / memory to serialize packet */
@@ -294,11 +287,13 @@ typedef struct {
   uint8_t etag[COAP_ETAG_LEN];
   size_t uri_host_len;
   const char *uri_host;
-  multi_option_t *location_path;
+  size_t location_path_len;
+  const char *location_path;
   uint16_t uri_port;
   size_t location_query_len;
   uint8_t *location_query;
-  multi_option_t *uri_path;
+  size_t uri_path_len;
+  const char *uri_path;
   uint16_t observe;
   uint8_t token_len;
   uint8_t token[COAP_TOKEN_LEN];
@@ -315,7 +310,8 @@ typedef struct {
   uint16_t block1_size;
   uint32_t block1_offset;
   uint32_t size;
-  multi_option_t *uri_query;
+  size_t uri_query_len;
+  const char *uri_query;
   uint8_t if_none_match;
 
   uint16_t payload_len;
@@ -351,12 +347,6 @@ typedef struct {
       option += coap_serialize_array_option(number, current_number, option, (uint8_t *) coap_pkt->field, coap_pkt->field##_len, splitter); \
       current_number = number; \
     }
-#define COAP_SERIALIZE_MULTI_OPTION(number, field, text)      \
-        if (IS_OPTION(coap_pkt, number)) { \
-          PRINTF(text); \
-          option += coap_serialize_multi_option(number, current_number, option, coap_pkt->field); \
-          current_number = number; \
-        }
 #define COAP_SERIALIZE_ACCEPT_OPTION(number, field, text)  \
     if (IS_OPTION(coap_pkt, number)) { \
       int i; \
@@ -391,8 +381,6 @@ size_t coap_serialize_message(void *packet, uint8_t *buffer);
 void coap_send_message(ip_addr_t *addr, uint16_t port, uint8_t *data, uint16_t length);
 coap_status_t coap_parse_message(void *request, uint8_t *data, uint16_t data_len);
 void coap_free_header(void *packet);
-
-char * coap_get_multi_option_as_string(multi_option_t * option);
 
 int coap_get_query_variable(void *packet, const char *name, const char **output);
 int coap_get_post_variable(void *packet, const char *name, const char **output);

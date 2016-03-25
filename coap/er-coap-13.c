@@ -212,136 +212,29 @@ coap_serialize_array_option(unsigned int number, unsigned int current_number, ui
 
   return i;
 }
-/*-----------------------------------------------------------------------------------*/
-static size_t  /*I*/
-coap_serialize_multi_option(unsigned int number, unsigned int current_number, uint8_t *buffer, multi_option_t *array)
-{
-  size_t i = 0;
-  multi_option_t * j;
 
-  for (j = array; j != NULL; j= j->next)
-  {
-     i += coap_set_option_header(number - current_number, j->len, &buffer[i]);
-     current_number = number;
-     memcpy(&buffer[i], j->data, j->len);
-     i += j->len;
-  } /* for */
-
-  return i;
-}
 /*-----------------------------------------------------------------------------------*/
-#ifdef  OMA_LWM2M
-void  /*I*/
-coap_merge_multi_option(uint8_t **dst, size_t *dst_len, uint8_t *option, size_t option_len, char separator)
+
+static void
+coap_merge_multi_option(char **dst, size_t *dst_len, uint8_t *option,
+                        size_t option_len, char separator)
 {
-  /* Merge multiple options. */
-  if (*dst_len > 0)
-  {
+  /* merge multiple options */
+  if(*dst_len > 0) {
     /* dst already contains an option: concatenate */
     (*dst)[*dst_len] = separator;
     *dst_len += 1;
 
     /* memmove handles 2-byte option headers */
-    memmove((*dst)+(*dst_len), option, option_len);
+    memmove((*dst) + (*dst_len), option, option_len);
 
     *dst_len += option_len;
-  }
-  else
-  {
+  } else {
     /* dst is empty: set to option */
-    *dst = option;
+    *dst = (char *)option;
     *dst_len = option_len;
   }
 }
-
-void  /*I*/
-coap_add_multi_option(multi_option_t **dst, uint8_t *option, size_t option_len, uint8_t is_static)
-{
-  multi_option_t *opt = (multi_option_t *)lwm2m_malloc(sizeof(multi_option_t));
-
-  if (opt)
-  {
-    opt->next = NULL;
-    opt->len = option_len;
-    if (is_static)
-    {
-      opt->data = option;
-      opt->is_static = 1;
-    }
-    else
-    {
-        opt->is_static = 0;
-        opt->data = (uint8_t *)lwm2m_malloc(option_len);
-        if (opt->data == NULL)
-        {
-            lwm2m_free(opt);
-            return;
-        }
-        memcpy(opt->data, option, option_len);
-    }
-
-    if (*dst)
-    {
-      multi_option_t * i = *dst;
-      while (i->next)
-      {
-        i = i->next;
-      }
-      i->next = opt;
-    }
-    else
-    {
-      *dst = opt;
-    }
-  }
-}
-
-void  /*I*/
-free_multi_option(multi_option_t *dst)
-{
-  if (dst)
-  {
-    multi_option_t *n = dst->next;
-    if (dst->is_static == 0)
-    {
-        lwm2m_free(dst->data);
-    }
-    lwm2m_free(dst);
-    free_multi_option(n);
-  }
-}
-
-char *  /*I*/
-coap_get_multi_option_as_string(multi_option_t * option)
-{
-    size_t len = 0;
-    multi_option_t * opt;
-    char * output;
-
-    for (opt = option; opt != NULL; opt = opt->next)
-    {
-       len += opt->len + 1;     // for separator
-    }
-
-    output = (char * )lwm2m_malloc(len + 1); // for String terminator
-    if (output != NULL)
-    {
-        size_t i = 0;
-
-        for (opt = option; opt != NULL; opt = opt->next)
-        {
-            output[i] = '/';
-            i += 1;
-
-            memmove(output + i, opt->data, opt->len);
-            i += opt->len;
-        }
-        output[i] = 0;
-    }
-
-    return output;
-}
-#endif
 
 /*-----------------------------------------------------------------------------------*/
 static int  /*I*/
@@ -459,11 +352,11 @@ coap_serialize_message(void *packet, uint8_t *buffer)
   COAP_SERIALIZE_INT_OPTION(    COAP_OPTION_IF_NONE_MATCH,  content_type-coap_pkt->content_type, "If-None-Match") /* hack to get a zero field */
   COAP_SERIALIZE_INT_OPTION(    COAP_OPTION_OBSERVE,        observe, "Observe")
   COAP_SERIALIZE_INT_OPTION(    COAP_OPTION_URI_PORT,       uri_port, "Uri-Port")
-  COAP_SERIALIZE_MULTI_OPTION(  COAP_OPTION_LOCATION_PATH,  location_path, "Location-Path")
-  COAP_SERIALIZE_MULTI_OPTION(  COAP_OPTION_URI_PATH,       uri_path, "Uri-Path")
+  COAP_SERIALIZE_STRING_OPTION(COAP_OPTION_LOCATION_PATH, location_path, '/', "Location-Path");
+  COAP_SERIALIZE_STRING_OPTION(COAP_OPTION_URI_PATH, uri_path, '/', "Uri-Path");
   COAP_SERIALIZE_INT_OPTION(    COAP_OPTION_CONTENT_TYPE,   content_type, "Content-Format")
   COAP_SERIALIZE_INT_OPTION(    COAP_OPTION_MAX_AGE,        max_age, "Max-Age")
-  COAP_SERIALIZE_MULTI_OPTION(  COAP_OPTION_URI_QUERY,      uri_query, "Uri-Query")
+  COAP_SERIALIZE_STRING_OPTION(COAP_OPTION_URI_QUERY, uri_query, '&', "Uri-Query");
   COAP_SERIALIZE_ACCEPT_OPTION( COAP_OPTION_ACCEPT,         accept, "Accept")
   COAP_SERIALIZE_STRING_OPTION( COAP_OPTION_LOCATION_QUERY, location_query, '&', "Location-Query")
   COAP_SERIALIZE_BLOCK_OPTION(  COAP_OPTION_BLOCK2,         block2, "Block2")
@@ -664,29 +557,38 @@ coap_parse_message(void *packet, uint8_t *data, uint16_t data_len)
         coap_pkt->uri_port = coap_parse_int_option(current_option, option_length);
         PRINTF("Uri-Port [%u]\n", coap_pkt->uri_port);
         break;
-#ifdef OMA_LWM2M
       case COAP_OPTION_URI_PATH:
         /* coap_merge_multi_option() operates in-place on the IPBUF, but final packet field should be const string -> cast to string */
-        // coap_merge_multi_option( (char **) &(coap_pkt->uri_path), &(coap_pkt->uri_path_len), current_option, option_length, 0);
-        coap_add_multi_option( &(coap_pkt->uri_path), current_option, option_length, 1);
-        PRINTF("Uri-Path [%.*s]\n", sizeof(multi_option_t), coap_pkt->uri_path);
+        coap_merge_multi_option((char **)&(coap_pkt->uri_path),
+                                &(coap_pkt->uri_path_len), current_option,
+                                option_length, '/');
+        PRINTF("Uri-Path [%.*s]\n", (int)coap_pkt->uri_path_len, coap_pkt->uri_path);
         break;
       case COAP_OPTION_URI_QUERY:
         /* coap_merge_multi_option() operates in-place on the IPBUF, but final packet field should be const string -> cast to string */
-        // coap_merge_multi_option( (char **) &(coap_pkt->uri_query), &(coap_pkt->uri_query_len), current_option, option_length, '&');
-        coap_add_multi_option( &(coap_pkt->uri_query), current_option, option_length, 1);
-        PRINTF("Uri-Query [%.*s]\n", sizeof(multi_option_t), coap_pkt->uri_query);
+        coap_merge_multi_option((char **)&(coap_pkt->uri_query),
+                                &(coap_pkt->uri_query_len), current_option,
+                                option_length, '&');
+        PRINTF("Uri-Query [%.*s]\n", (int)coap_pkt->uri_query_len,
+               coap_pkt->uri_query);
         break;
 
       case COAP_OPTION_LOCATION_PATH:
-        coap_add_multi_option( &(coap_pkt->location_path), current_option, option_length, 1);
+        /* coap_merge_multi_option() operates in-place on the IPBUF, but final packet field should be const string -> cast to string */
+        coap_merge_multi_option((char **)&(coap_pkt->location_path),
+                                &(coap_pkt->location_path_len), current_option,
+                                option_length, '/');
+        PRINTF("Location-Path [%.*s]\n", (int)coap_pkt->location_path_len,
+               coap_pkt->location_path);
         break;
       case COAP_OPTION_LOCATION_QUERY:
         /* coap_merge_multi_option() operates in-place on the IPBUF, but final packet field should be const string -> cast to string */
-        coap_merge_multi_option( &(coap_pkt->location_query), &(coap_pkt->location_query_len), current_option, option_length, '&');
-        PRINTF("Location-Query [%.*s]\n", coap_pkt->location_query_len, coap_pkt->location_query);
+        coap_merge_multi_option((char **)&(coap_pkt->location_query),
+                                &(coap_pkt->location_query_len), current_option,
+                                option_length, '&');
+        PRINTF("Location-Query [%.*s]\n", (int)coap_pkt->location_query_len,
+               coap_pkt->location_query);
         break;
-#endif
       case COAP_OPTION_PROXY_URI:
         /*FIXME check for own end-point */
         coap_pkt->proxy_uri = (char *)current_option;
