@@ -16,7 +16,7 @@
 
 ## 課程紀錄
 
-* 2016.3.25: [FreeRTOS & lwIP 物聯網應用開發](https://www.moko365.com/enterprise/iot100-freertos-iot-programming-101)
+* 2016.3.24: [FreeRTOS & lwIP 物聯網應用開發](https://www.moko365.com/enterprise/iot100-freertos-iot-programming-101)
 
 ## 安裝
 
