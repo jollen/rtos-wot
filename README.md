@@ -17,6 +17,7 @@
 ## 其它
 
 * rtos-wot 較適合用於學習用途，正式 IoT 開發，請使用官方的 [ESP8266 RTOS SDK](https://github.com/espressif/ESP8266_RTOS_SDK)
+* rtos-wot 基於 Superhoue 的 esp-open-rtos，請參考 [esp-open-rtos](https://github.com/jollen/rtos-wot/blob/master/README_esp-open-rtos.md)
 
 ## 課程紀錄
 
