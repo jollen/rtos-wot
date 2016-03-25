@@ -49,12 +49,14 @@
 #include "math.h"
 
 // C++ programming model
-#include "AnalogIn.h"
+//#include "AnalogIn.h"
 
 // CoAP
 #include "er-coap-13.h"
 #include "er-coap-13-transactions.h"
 #include "uri.h"
+
+#include "ssid_config.h"
 
 #define DEBUG 1
 #if DEBUG
@@ -66,8 +68,9 @@
 
 #define MAX_MESSAGE_SIZE 1152
 
-/* CoAP server */
-const char* SERVER_URI = "coap://wot.city/";
+#define SERVER_URI  "coap://wot.city:8147/object/12345/send"
+
+#define wait(s) vTaskDelay(s * 1000 / portTICK_RATE_MS);
 
 struct userdata {
     xQueueHandle xQueue;
@@ -76,6 +79,9 @@ struct userdata {
     /* CoAP context */
     coap_transaction_t *transaction;
     coap_packet_t *response;
+
+    /* CoAP server */
+    unsigned char server_uri[64];
 };
 
 /* user context */
@@ -86,7 +92,7 @@ static struct userdata user;
  * MP503 Air Quality Sensor -
  * http://www.seeedstudio.com/wiki/File:Air_quality_sensor_MP503.pdf
  */
-AnalogIn    AIR(17);
+//AnalogIn    AIR(17);
 
 /* This task uses the high level GPIO API (esp_gpio.h) to blink an LED.
  *
@@ -99,7 +105,7 @@ readTask(void *pvParameters)
 
     while(1) {
         // read from sensor output voltage
-        a = AIR;
+        a = 99;//AIR;
 
         if (a > 798 || a <= 10) {
             printf("Sensor is initializing. Waiting for 5 seconds...\n");
@@ -124,21 +130,17 @@ transmitTask(void *pvParameters)
     char payload[128];
     int failures = 0;
 
+    // Prepare CoAP server URI
+    memset(user->server_uri, 0, 64);
+    memcpy(user->server_uri, SERVER_URI, strlen(SERVER_URI));
+
     // Get host/port from request URL
     // should call free(uri) somewhere
-    coap_uri_t *uri = coap_new_uri(SERVER_URI, strlen(SERVER_URI));   
+    coap_uri_t *uri = coap_new_uri(user->server_uri, strlen((const char*)user->server_uri));   
     if (uri == NULL) {
         COAP_PRINTF("coap_new_uri(): URI failed\n");
         vTaskDelete(NULL);
     }
-
-    COAP_PRINTF("URI Path: %s\n", uri->path.s);
-    COAP_PRINTF("URI Host: %s\n", uri->host.s);
-
-    // init a HTTP POST message and set message header
-    coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
-    coap_set_header_uri_path(request, (char *)uri->path.s);
-    coap_set_header_uri_host(request, (char *)uri->host.s);
 
     // create network socket
     struct addrinfo hints;
@@ -150,9 +152,24 @@ transmitTask(void *pvParameters)
     // 2. DNS lookup
     int err;
     char port[6];
+    char host[32];
+    char path[64];
 
     sprintf(port, "%d", uri->port);
-    printf("Running DNS lookup for %s...\r\n", uri->host.s);
+    sprintf(path, "%s", uri->path.s);
+    memcpy(host, uri->host.s, uri->host.length);
+    host[uri->host.length] = '\0';
+
+    COAP_PRINTF("URI Path: %s\n", path);
+    COAP_PRINTF("URI Host: %s\n", host);
+    COAP_PRINTF("URI Port: %s\n", port);
+
+    printf("Running DNS lookup for %s...\r\n", host);
+
+    // init a HTTP POST message and set message header
+    coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
+    coap_set_header_uri_path(request, (char *)uri->path.s);
+    coap_set_header_uri_host(request, (char *)uri->host.s);
 
     while (1) {
         err = getaddrinfo((char*)uri->host.s, (char*)port, &hints, &res);
@@ -207,9 +224,20 @@ repeat:
     }
 }
 
-extern "C" void user_init(void)
+void user_init(void)
 {
     uart_set_baud(0, 115200);
+
+    printf("SDK version:%s\n", sdk_system_get_sdk_version());
+
+    struct sdk_station_config config = {
+        .ssid = WIFI_SSID,
+        .password = WIFI_PASS,
+    };
+
+    /* required to call wifi_set_opmode before station_set_config */
+    sdk_wifi_set_opmode(STATION_MODE);
+    sdk_wifi_station_set_config(&config);
 
     user.xQueue = xQueueCreate(2, sizeof(uint32_t));
     xTaskCreate(readTask, (signed char *)"readTask", 256, &user, tskIDLE_PRIORITY+1, NULL);
