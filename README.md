@@ -4,7 +4,7 @@
 
 [rtos-wot](https://github.com/wot-sdk/rtos-wot) 是一個用於學習 FreeRTOS + IoT 的 FreeRTOS 特別版本（distribution），目前使用在我自已的 FreeRTOS + IoT 教育訓練。
 
-為什麼需要一個特別的 FreeRTOS 版本？說明如下：
+為什麼需要一個特別的 FreeRTOS 版本？主要原因是官方的 ESP8266 RTOS SDK 沒有開放源碼，因此計畫維護一份單純用於教育用途的 FreeRTOS 套件。說明如下：
 
 * 使用 Open Source 的 [FreeRTOS](http://www.freertos.org) 原始碼，能研究並修改 FreeRTOS kernel 原始碼
 * 使用 Open Source 的 lwip 做為 TCP/IP Stacks，能研究 FreeRTOS kernel 原始碼
@@ -13,6 +13,10 @@
 * 具開放源碼的 FreeRTOS + lwip + CoAP 能進行完整的 Web of Things 全端教學
 
 詳細的技術細節與發佈紀錄，請參考 [README_rtos-wot.md](README_rtos-wot.md)。
+
+## 其它
+
+* rtos-wot 較適合用於學習用途，正式 IoT 開發，請使用官方的 [ESP8266 RTOS SDK](https://github.com/espressif/ESP8266_RTOS_SDK)
 
 ## 課程紀錄
 
