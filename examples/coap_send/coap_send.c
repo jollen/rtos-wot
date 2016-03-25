@@ -68,7 +68,7 @@
 #define COAP_PRINTF(...)
 #endif
 
-#define URI     "coap://wot.city:8147/object/12345678/send"
+#define URI     "coap://192.168.0.102:8000/object/12345678/send"
 
 struct request_state_t {
   coap_transaction_t *transaction;
@@ -114,7 +114,7 @@ http_get_task(void *pvParameters)
     char path[64];
 
     sprintf(port, "%d", uri->port);
-    sprintf(path, "/%s", uri->path.s);
+    sprintf(path, "%s", uri->path.s);
     memcpy(host, uri->host.s, uri->host.length);
     host[uri->host.length] = '\0';
 
