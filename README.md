@@ -44,4 +44,4 @@ rtos-wot 環境建置指南，請參考 [使用 ESP8266 做為 FreeRTOS 的學�
 
 * CoAP as in the `coap` directory is Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich
 
-* The examples for [FreeRTOS & lwIP 物聯網應用開發](https://www.moko365.com/enterprise/iot100-freertos-iot-programming-101), but the originals included in FreeRTOS distribution, are provided under the BSD 3-Clause license
+* The examples for [FreeRTOS & lwIP 物聯網應用開發](https://www.moko365.com/enterprise/iot100-freertos-iot-programming-101), except the examples included in the original FreeRTOS distribution, are provided under the BSD 3-Clause license
