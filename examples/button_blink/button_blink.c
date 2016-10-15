@@ -48,7 +48,7 @@ void buttonPollTask(void *pvParameters)
 
    This is a better example of how to wait for button input!
 */
-static int pressed = 0;
+//static int pressed = 0;
 
 void buttonIntTask(void *pvParameters)
 {
@@ -90,5 +90,5 @@ void user_init(void)
 
     tsqueue = xQueueCreate(2, sizeof(uint32_t));
     xTaskCreate(buttonIntTask, (signed char *)"buttonIntTask", 256, &tsqueue, 2, NULL);
-    xTaskCreate(buttonPollTask, (signed char*)"buttonPollTask", 256, NULL, 1, NULL);
+    //xTaskCreate(buttonPollTask, (signed char*)"buttonPollTask", 256, NULL, 1, NULL);
 }

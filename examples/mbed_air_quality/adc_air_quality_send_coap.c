@@ -106,6 +106,7 @@ readTask(void *pvParameters)
     while(1) {
         // read from sensor output voltage
         a = 99;//AIR;
+        //printf("Quality: %d\n", a);
 
         if (a > 798 || a <= 10) {
             printf("Sensor is initializing. Waiting for 5 seconds...\n");
