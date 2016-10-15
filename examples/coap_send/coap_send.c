@@ -68,7 +68,7 @@
 #define COAP_PRINTF(...)
 #endif
 
-#define URI     "coap://192.168.0.102:8000/object/12345678/send"
+#define URI     "coap://192.168.0.101:8000/object/12345678/send"
 
 struct request_state_t {
   coap_transaction_t *transaction;

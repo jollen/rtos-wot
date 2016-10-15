@@ -630,6 +630,10 @@
 #define LWIP_ICMP                       1
 #endif
 
+#ifdef LWIP_ICMP
+#define LWIP_RAND rand
+#endif
+
 /**
  * ICMP_TTL: Default value for Time-To-Live used by ICMP packets.
  */
@@ -802,7 +806,7 @@
  * LWIP_IGMP==1: Turn on IGMP module. 
  */
 #ifndef LWIP_IGMP
-#define LWIP_IGMP                       0
+#define LWIP_IGMP                       1
 #endif
 
 /*
@@ -1114,7 +1118,7 @@
  * field.
  */
 #ifndef LWIP_NETIF_HOSTNAME
-#define LWIP_NETIF_HOSTNAME             0
+#define LWIP_NETIF_HOSTNAME             1
 #endif
 
 /**
