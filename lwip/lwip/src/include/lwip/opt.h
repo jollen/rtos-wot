@@ -806,7 +806,7 @@
  * LWIP_IGMP==1: Turn on IGMP module. 
  */
 #ifndef LWIP_IGMP
-#define LWIP_IGMP                       1
+#define LWIP_IGMP                       0
 #endif
 
 /*
@@ -819,7 +819,7 @@
  * transport.
  */
 #ifndef LWIP_DNS
-#define LWIP_DNS                        0
+#define LWIP_DNS                        1
 #endif
 
 /** DNS maximum number of entries to maintain locally. */
