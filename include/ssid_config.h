@@ -25,7 +25,7 @@
 #ifndef __SSID_CONFIG_H__
 #define __SSID_CONFIG_H__
 
-#define WIFI_SSID "Rabbitfoot 4G"
-#define WIFI_PASS "24552690"
+#define WIFI_SSID "FlowchainMaster"
+#define WIFI_PASS "1234567654321"
 
 #endif // __SSID_CONFIG_H__

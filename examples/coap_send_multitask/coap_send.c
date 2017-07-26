@@ -47,6 +47,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 
 // CoAP
 #include "er-coap-13.h"
@@ -60,6 +61,7 @@
 #include "lwip/dns.h"
 
 #include "ssid_config.h"
+#include "FreeRTOSConfig.h"
 
 #define DEBUG 1
 #if DEBUG
@@ -68,7 +70,7 @@
 #define COAP_PRINTF(...)
 #endif
 
-#define URI     "coap://192.168.0.102:8000/object/12345678/send"
+#define URI     "coap://wot.city:8147/object/589ecb06b2dc71380d000ba5/send"
 
 struct request_state_t {
   coap_transaction_t *transaction;
@@ -85,9 +87,19 @@ void coap_blocking_request_callback(void *callback_data, void *response) {
   COAP_PRINTF("coap_blocking_request_callback is called.\n");
 }
 
+/*
+ * User context
+ */
+struct userdata {
+    xQueueHandle xQueue;
+};
+
+static struct userdata user;
+
 void
-http_get_task(void *pvParameters)
+transmit_task(void *pvParameters)
 {
+    struct userdata *u = (struct userdata *)pvParameters;
     coap_packet_t request[1]; /* This way the packet can be treated as pointer as usual. */
     int failures = 0;
 
@@ -174,10 +186,8 @@ http_get_task(void *pvParameters)
         printf("... connected\r\n");
         freeaddrinfo(res);
 repeat:
-        vTaskDelay(5000 / portTICK_RATE_MS);
-
-        // read sensor data from ESP8266 A0
-        a = sdk_system_adc_read();
+        // read sensor data from the message queue
+        xQueueReceive(u->xQueue, &a, portMAX_DELAY);
 
         sprintf(payload, "{ \"quality\": %d }\n", a);
         COAP_PRINTF("Payload: %s\n", payload);
@@ -228,6 +238,23 @@ repeat:
     }
 }
 
+void
+read_task(void *pvParameters)
+{
+    struct userdata *u = (struct userdata *)pvParameters;
+    int a;
+
+    while(1) {
+        // read sensor data from ESP8266 A0
+        a = sdk_system_adc_read();
+
+        // send to the queue
+        xQueueSendToFront(u->xQueue, (void *) &a, portMAX_DELAY);
+
+        vTaskDelay(5000 / portTICK_RATE_MS);
+    }    
+}
+
 void user_init(void)
 {
     uart_set_baud(0, 115200);
@@ -242,6 +269,9 @@ void user_init(void)
     sdk_wifi_set_opmode(STATION_MODE);
     sdk_wifi_station_set_config(&config);
 
-    xTaskCreate(&http_get_task, (signed char *)"get_task", 256, NULL, tskIDLE_PRIORITY+1, NULL);
+    user.xQueue = xQueueCreate(12, sizeof(uint32_t));
+
+    xTaskCreate(&read_task, (signed char *)"read_task", 256, &user, tskIDLE_PRIORITY+2, NULL);
+    xTaskCreate(&transmit_task, (signed char *)"transmit_task", 256, &user, tskIDLE_PRIORITY+1, NULL);
 }
 
