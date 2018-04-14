@@ -6,5 +6,4 @@
 *.sublime-*
 *.log
 build
-firmware
 .output
