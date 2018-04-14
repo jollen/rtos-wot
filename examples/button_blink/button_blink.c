@@ -90,5 +90,5 @@ void user_init(void)
 
     tsqueue = xQueueCreate(2, sizeof(uint32_t));
     xTaskCreate(buttonIntTask, (signed char *)"buttonIntTask", 256, &tsqueue, 2, NULL);
-    //xTaskCreate(buttonPollTask, (signed char*)"buttonPollTask", 256, NULL, 1, NULL);
+    xTaskCreate(buttonPollTask, (signed char*)"buttonPollTask", 256, NULL, 1, NULL);
 }
