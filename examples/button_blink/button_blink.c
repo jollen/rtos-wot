@@ -71,6 +71,8 @@ void buttonIntTask(void *pvParameters)
             gpio_write(gpio_blink, 0);
             vTaskDelay(1000 / portTICK_RATE_MS);
         }
+
+        taskYIELD();
     }
 }
 
